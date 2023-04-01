@@ -1,0 +1,9 @@
+name: CustomCraft
+main: me.scyphers.customcraft.CustomCraft
+version: 0.1
+author: Scyphers
+api-version: 1.19
+description: "Adds Custom Crafting with in-game customisation"
+commands:
+  customcrafting:
+    description: Management of custom crafting
