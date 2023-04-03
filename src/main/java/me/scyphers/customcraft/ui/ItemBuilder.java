@@ -4,8 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -141,7 +139,7 @@ public class ItemBuilder {
      */
     public ItemBuilder name(String name, boolean ignoreItalics) {
 
-        Component component = textSerializer.deserialize(ChatColor.translateAlternateColorCodes('&', name));
+        Component component = textSerializer.deserialize(name);
         if (ignoreItalics) {
             Style style = component.style();
             style = style.decoration(TextDecoration.ITALIC, false);
@@ -180,7 +178,7 @@ public class ItemBuilder {
      * @return The Builder instance
      */
     public ItemBuilder lore(String lore, boolean ignoreItalics) {
-        Component component = textSerializer.deserialize(ChatColor.translateAlternateColorCodes('&', lore));
+        Component component = textSerializer.deserialize(lore);
         if (ignoreItalics) {
             Style style = component.style();
             style = style.decoration(TextDecoration.ITALIC, false);
