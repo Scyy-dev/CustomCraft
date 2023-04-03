@@ -17,14 +17,14 @@ public class CraftHomeGUI extends MenuGUI {
     private final NamespacedKey key;
 
     public CraftHomeGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID intendedViewer, NamespacedKey key) {
-        super(plugin, player, intendedViewer, "&5Custom Crafting", 27);
+        super(plugin, player, intendedViewer, "<purple>Custom Crafting</purple>", 27);
         this.key = key;
     }
 
     @Override
     public void draw() {
         super.draw();
-        setItem(13, new ItemBuilder(Material.CRAFTING_TABLE).name("&6Add Crafting Recipe").build());
+        setItem(13, new ItemBuilder(Material.CRAFTING_TABLE).name("<gold>Add Crafting Recipe</gold>").build());
     }
 
     @Override

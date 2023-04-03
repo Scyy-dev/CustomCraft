@@ -46,7 +46,7 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
      */
 
     public AddCraftingRecipeGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID viewer, NamespacedKey key) {
-        super(plugin, player, viewer, "&5Add Crafting Recipe", 54);
+        super(plugin, player, viewer, "<purple>Add Crafting Recipe</purple>", 54);
         this.key = key;
     }
 
@@ -68,15 +68,15 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
         }
 
         // Add the Crafting Table
-        String addItemText = confirm ? "&7Click again to confirm adding this item!" : "&7Click to add this item!";
-        setItem(23, new ItemBuilder(Material.CRAFTING_TABLE).name("&6Add Recipe!").lore(addItemText).build());
+        String addItemText = confirm ? "<gray>Click again to confirm adding this item!</gray>" : "<gray>Click to add this item!</gray>";
+        setItem(23, new ItemBuilder(Material.CRAFTING_TABLE).name("<gold>Add Recipe!</gold>").lore(addItemText).build());
 
         // Add the result slot
         setItem(25, getItem(result));
 
         // Add the shapeless/shaped toggle
-        String shapeName = shapeless ? "&6Shapeless" : "&6Shaped";
-        String lore = "&8Click to toggle to change the recipe to a " + shapeName + " &8recipe";
+        String shapeName = shapeless ? "<gold>Shapeless</gold>" : "<gold>Shaped</gold>";
+        String lore = "<dark_gray>Click to toggle to change the recipe to a " + shapeName + " recipe</dark_gray>";
         Material type = shapeless ? Material.WATER_BUCKET : Material.ICE;
         setItem(49, new ItemBuilder(type).name(shapeName).lore("").lore(lore).build());
 
