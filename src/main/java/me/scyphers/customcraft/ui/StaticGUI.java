@@ -1,30 +1,19 @@
 package me.scyphers.customcraft.ui;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
 public final class StaticGUI extends InventoryGUI {
 
-    private final InventoryGUI lastGUI;
+    private final InventoryGUI gui;
 
-    public StaticGUI(InventoryGUI gui) {
-        super(gui.getPlugin(), gui.getPlayer(), gui.getViewer(), gui.getName(), gui.getSize());
-        this.lastGUI = gui;
-    }
-
-    @Override
-    public @NotNull GUI<?> handleInteraction(InventoryClickEvent event) {
-        event.setCancelled(true);
-        return this;
+    public StaticGUI(@NotNull InventoryGUI gui) {
+        super(gui.getSession(), gui.getName(), gui.getSize());
+        this.gui = gui;
     }
 
     @Override
     public void draw() {
-        this.getInventory().setContents(lastGUI.getInventory().getContents());
+        gui.draw();
     }
 
-    @Override
-    public boolean allowPlayerInventoryEdits() {
-        return false;
-    }
 }

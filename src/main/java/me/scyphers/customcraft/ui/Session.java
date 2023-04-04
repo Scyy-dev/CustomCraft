@@ -1,4 +1,4 @@
-package me.scyphers.customcraft.newui;
+package me.scyphers.customcraft.ui;
 
 import me.scyphers.customcraft.CustomCraft;
 import org.bukkit.entity.Player;

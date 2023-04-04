@@ -1,8 +1,8 @@
 package me.scyphers.customcraft.command;
 
 import me.scyphers.customcraft.CustomCraft;
-import me.scyphers.customcraft.newgui.CraftHomeGUI;
-import me.scyphers.customcraft.newui.Session;
+import me.scyphers.customcraft.gui.CraftHomeGUI;
+import me.scyphers.customcraft.ui.Session;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
