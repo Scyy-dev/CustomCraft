@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +51,10 @@ public abstract class InventoryGUI implements InventoryHolder, GUI<InventoryClic
     // this event is only really needed for storage based GUIs
     public void onClose(InventoryCloseEvent event) {
 
+    }
+
+    public void onDrag(InventoryDragEvent event) {
+        event.setCancelled(true);
     }
 
     public abstract void draw();
