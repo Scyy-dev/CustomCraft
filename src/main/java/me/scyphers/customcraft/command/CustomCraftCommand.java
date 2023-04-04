@@ -1,8 +1,8 @@
 package me.scyphers.customcraft.command;
 
 import me.scyphers.customcraft.CustomCraft;
-import me.scyphers.customcraft.gui.CraftHomeGUI;
-import me.scyphers.customcraft.ui.GUI;
+import me.scyphers.customcraft.newgui.CraftHomeGUI;
+import me.scyphers.customcraft.newui.Session;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,8 +32,8 @@ public class CustomCraftCommand extends PluginCommand {
             plugin.getMessenger().chat(sender, "error.recipeAlreadyExists", "%key%", recipeKey);
         }
 
-        GUI<?> gui = new CraftHomeGUI(plugin, player, player.getUniqueId(), key);
-        gui.open();
+        Session session = new Session(plugin, player, player.getUniqueId());
+        session.with(new CraftHomeGUI(session, key)).start();
     }
 
     @Override
