@@ -1,11 +1,8 @@
 package me.scyphers.customcraft.ui;
 
-import me.scyphers.customcraft.CustomCraft;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -13,56 +10,80 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.UUID;
 
-public abstract class InventoryGUI implements InventoryHolder, GUI<InventoryClickEvent> {
+public abstract class InventoryGUI implements InventoryHolder {
 
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     public static final ItemStack BACKGROUND = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name(Component.text(" ")).build();
 
-    private final CustomCraft plugin;
-    private final Player player;
-    private final UUID viewer;
+    private final Session session;
 
     private final String name;
     private final int size;
 
     private final Inventory inventory;
 
-    private boolean shouldClose;
-    private boolean drawControls = true;
+    private boolean update = false;
+    private boolean close = false;
 
-    public InventoryGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID viewer, @NotNull String name, int size) {
-        this.plugin = plugin;
-        this.player = player;
-        this.viewer = viewer;
+    public InventoryGUI(@NotNull Session session, @NotNull String name, int size) {
+        this.session = session;
         this.name = name;
         this.size = size;
-        this.inventory = Bukkit.createInventory(this, size, miniMessage.deserialize(name));
-    }
-
-    @Override
-    public abstract @NotNull GUI<?> handleInteraction(InventoryClickEvent event);
-
-    // left empty for GUIs that have no behaviour on closing
-    // this event is only really needed for storage based GUIs
-    public void onClose(InventoryCloseEvent event) {
-
-    }
-
-    public void onDrag(InventoryDragEvent event) {
-        event.setCancelled(true);
+        this.inventory = session.getPlugin().getServer().createInventory(this, size, miniMessage.deserialize(name));
     }
 
     public abstract void draw();
 
-    @Override
+    // Default behaviour is to block interaction
+    public InventoryGUI onClick(InventoryClickEvent event) {
+        event.setCancelled(true);
+        return this;
+    }
+    public void onClose(InventoryCloseEvent event) {
+
+    }
+    public InventoryGUI onDrag(InventoryDragEvent event) {
+        event.setCancelled(true);
+        return this;
+    }
+
     public void open() {
         this.draw();
-        player.openInventory(inventory);
+        session.getPlayer().openInventory(inventory);
+    }
+
+    public void close() {
+        session.getPlayer().closeInventory();
+    }
+
+    public void update() {
+        session.getPlayer().updateInventory();
+    }
+
+    public boolean shouldUpdate() {
+        return update;
+    }
+
+    public boolean shouldClose() {
+        return close;
+    }
+
+    public void setUpdate(boolean update) {
+        this.update = update;
+    }
+
+    public void setClose(boolean close) {
+        this.close = close;
+    }
+
+    public @Nullable ItemStack getItem(int slot) {
+        if (slot < 0 || slot >= size) return null;
+        return inventory.getContents()[slot];
     }
 
     public void setItem(int slot, ItemStack item) {
@@ -76,24 +97,12 @@ public abstract class InventoryGUI implements InventoryHolder, GUI<InventoryClic
     }
 
     @Override
-    public @NotNull CustomCraft getPlugin() {
-        return plugin;
-    }
-
-    @Override
-    public @NotNull Player getPlayer() {
-        return player;
-    }
-
-    @NotNull
-    @Override
-    public UUID getViewer() {
-        return viewer;
-    }
-
-    @Override
     public @NotNull Inventory getInventory() {
         return inventory;
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     public String getName() {
@@ -103,25 +112,5 @@ public abstract class InventoryGUI implements InventoryHolder, GUI<InventoryClic
     public int getSize() {
         return size;
     }
-
-    @Override
-    public boolean shouldClose() {
-        return shouldClose;
-    }
-
-    public void setShouldClose(boolean shouldClose) {
-        this.shouldClose = shouldClose;
-    }
-    
-    @Override
-    public boolean drawControls() {
-        return drawControls;
-    }
-
-    public void setDrawControls(boolean drawControls) {
-        this.drawControls = drawControls;
-    }
-
-    public abstract boolean allowPlayerInventoryEdits();
 
 }

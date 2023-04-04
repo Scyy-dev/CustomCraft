@@ -1,20 +1,16 @@
 package me.scyphers.customcraft.ui;
 
-import me.scyphers.customcraft.CustomCraft;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.List;
-import java.util.UUID;
 
 public abstract class PagedListGUI<T> extends MenuGUI {
-
-    private final ItemStack fillItem;
 
     private List<T> items;
 
@@ -27,14 +23,12 @@ public abstract class PagedListGUI<T> extends MenuGUI {
     private final int columnFromWidth;
     private final int startIndex;
 
-    public PagedListGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID intendedViewer,
-                        @NotNull String name, int size, @Range(from = 1, to = 4) int height,
-                        @Range(from = 1, to = 7) int width, ItemStack fillItem, int previousPageSlot, int nextPageSlot) {
-        super(plugin, player, intendedViewer, name, size);
+    public PagedListGUI(@NotNull Session session, @NotNull String name, int size, @Range(from = 1, to = 4) int height,
+                        @Range(from = 1, to = 7) int width, int previousPageSlot, int nextPageSlot) {
+        super(session, name, size);
         this.height = height;
         this.width = width;
         this.totalPerPage = height * width;
-        this.fillItem = fillItem;
         this.previousPageSlot = previousPageSlot;
         this.nextPageSlot = nextPageSlot;
 
@@ -59,7 +53,7 @@ public abstract class PagedListGUI<T> extends MenuGUI {
         int invIndex = startIndex;
 
         items = createList();
-        
+
         // Iterate over the current page of items
         for (int i = listIndexStart; i < listIndexStart + totalPerPage; i++) {
 
@@ -68,7 +62,7 @@ public abstract class PagedListGUI<T> extends MenuGUI {
                 T item = items.get(i);
                 inventoryItems[invIndex] = this.display(item);
 
-            // Otherwise, display nothing
+                // Otherwise, display nothing
             } else {
                 inventoryItems[invIndex] = this.displayBlank();
             }
@@ -90,13 +84,13 @@ public abstract class PagedListGUI<T> extends MenuGUI {
     }
 
     @Override
-    public GUI<?> onClick(int slot, ClickType type) {
+    public InventoryGUI onClick(int slot, ClickType type, InventoryAction action) {
         // Check if the item clicked was an item on the list
         int wrappedClick = getIndexOfItemWithBorder(slot, getRowFromHeight(height) * 2, getColumnFromWidth(width) * 2);
         int indexedClick = totalPerPage * page + wrappedClick;
         if (wrappedClick != -1 && indexedClick < items.size()) {
             T item = items.get(indexedClick);
-            return this.handleItemInteraction(slot, type, item);
+            return this.handleItemInteraction(slot, type, action, item);
         }
 
         // Check if the item clicked was a pagination button
@@ -112,7 +106,7 @@ public abstract class PagedListGUI<T> extends MenuGUI {
             return this;
         }
 
-        return this.handleGenericInteraction(slot, type);
+        return this.handleGenericInteraction(slot, type, action);
     }
 
     public abstract @NotNull List<T> createList();
@@ -124,16 +118,16 @@ public abstract class PagedListGUI<T> extends MenuGUI {
     public abstract boolean allowsInfinitePages();
 
     public @NotNull ItemStack previousPageButton(int page) {
-        return new ItemBuilder(Material.ARROW).name("<gold>Page " + (page - 1)  + "</gold>").build();
+        return new ItemBuilder(Material.ARROW).name("<gold>Page " + (page - 1) + "</gold>").build();
     }
 
     public @NotNull ItemStack nextPageButton(int page) {
         return new ItemBuilder(Material.ARROW).name("<gold>Page " + (page + 1) + "</gold>").build();
     }
 
-    public abstract @NotNull GUI<?> handleGenericInteraction(int slot, ClickType type);
+    public abstract @NotNull InventoryGUI handleGenericInteraction(int slot, ClickType type, InventoryAction action);
 
-    public abstract @NotNull GUI<?> handleItemInteraction(int slot, ClickType type, T item);
+    public abstract @NotNull InventoryGUI handleItemInteraction(int slot, ClickType type, InventoryAction action, T item);
 
     public List<T> getItems() {
         return items;

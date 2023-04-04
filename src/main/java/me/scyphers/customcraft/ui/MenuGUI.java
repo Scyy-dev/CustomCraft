@@ -1,59 +1,51 @@
 package me.scyphers.customcraft.ui;
 
-import me.scyphers.customcraft.CustomCraft;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public abstract class MenuGUI extends InventoryGUI {
 
     private final int backSlot, exitSlot;
 
-    public MenuGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID intendedViewer, @NotNull String name, int size) {
-        super(plugin, player, intendedViewer, name, size);
+    public MenuGUI(Session session, @NotNull String name, int size) {
+        super(session, name, size);
 
         this.backSlot = size - 9;
         this.exitSlot = size - 1;
     }
 
+    public abstract InventoryGUI onClick(int slot, ClickType type, InventoryAction action);
+
+    public abstract InventoryGUI getPreviousGUI();
+
     @Override
     public void draw() {
         this.fill(BACKGROUND);
-        
-        if (this.drawControls()) {
-	        setItem(backSlot, new ItemBuilder(Material.COMPASS).name("<gold>Back</gold>").build());
-	        setItem(exitSlot, new ItemBuilder(Material.IRON_DOOR).name("<red>Exit</red>").build());
-        }
+        setItem(backSlot, new ItemBuilder(Material.COMPASS).name("<gold>Back</gold>").build());
+        setItem(exitSlot, new ItemBuilder(Material.IRON_DOOR).name("<red>Exit</red>").build());
     }
 
     @Override
-    public @NotNull GUI<?> handleInteraction(InventoryClickEvent event) {
+    public InventoryGUI onClick(InventoryClickEvent event) {
+        int slot = event.getRawSlot();
         event.setCancelled(true);
 
-        int slot = event.getRawSlot();
-
-        if (this.drawControls()) {
-	        if (slot == backSlot) return getPreviousGUI();
-	        if (slot == exitSlot) {
-	            this.setShouldClose(true);
-	            return new StaticGUI(this);
-	        }
+        if (slot == backSlot) return getPreviousGUI();
+        if (slot == exitSlot) {
+            setClose(true);
+            return new StaticGUI(this);
         }
 
-        return onClick(slot, event.getClick());
+        return onClick(slot, event.getClick(), event.getAction());
 
     }
 
-    public abstract GUI<?> onClick(int slot, ClickType type);
-
-    public abstract GUI<?> getPreviousGUI();
-
     @Override
-    public boolean allowPlayerInventoryEdits() {
-        return false;
+    public final InventoryGUI onDrag(InventoryDragEvent event) {
+        return super.onDrag(event);
     }
 }
