@@ -43,7 +43,6 @@ public class Session implements Listener {
 
     public void end() {
         executor.execute(() -> {
-            System.out.println("Closing GUI");
             gui.close();
             unregister();
         });
@@ -53,34 +52,25 @@ public class Session implements Listener {
         InventoryClickEvent.getHandlerList().unregister(this);
         InventoryCloseEvent.getHandlerList().unregister(this);
         InventoryDragEvent.getHandlerList().unregister(this);
-        System.out.println("All events unregistered");
     }
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
 
         InventoryGUI old = this.gui;
-
-        System.out.println("Event called");
-
         if (this.gui != event.getView().getTopInventory().getHolder()) return;
-
-        System.out.println("is correct GUI");
-
         this.gui = gui.onClick(event);
 
         // Closing is evaluated first to ensure the GUI is closed instead of opening the new GUI
         // If multiple clicks occur in a tick while closing a GUI,
         // the returned GUI from each click is evaluated before the GUI is closed
         if (old.shouldClose()) {
-            System.out.println("GUI is closing");
             gui.setClose(false);
             this.end();
             return;
         }
 
         if (old != gui) {
-            System.out.println("New GUI");
             if (old.getSize() != gui.getSize()) {
                 executor.execute(() -> gui.open());
             } else {
@@ -91,13 +81,9 @@ public class Session implements Listener {
         }
 
         if (old.shouldUpdate()) {
-            System.out.println("GUI is updating");
             gui.setUpdate(false);
             executor.execute(() -> gui.update());
-            return;
         }
-
-        System.out.println("GUI is doing nothing");
 
     }
 
