@@ -118,7 +118,7 @@ public abstract class PagedListGUI<T> extends MenuGUI {
     public abstract boolean allowsInfinitePages();
 
     public @NotNull ItemStack previousPageButton(int page) {
-        return new me.scyphers.customcraft.ui.ItemBuilder(Material.ARROW).name("<gold>Page " + (page - 1) + "</gold>").build();
+        return new ItemBuilder(Material.ARROW).name("<gold>Page " + (page - 1) + "</gold>").build();
     }
 
     public @NotNull ItemStack nextPageButton(int page) {
