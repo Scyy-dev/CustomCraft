@@ -17,7 +17,7 @@ public class CraftHomeGUI extends MenuGUI {
     private final NamespacedKey key;
 
     public CraftHomeGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID intendedViewer, NamespacedKey key) {
-        super(plugin, player, intendedViewer, "<purple>Custom Crafting</purple>", 27);
+        super(plugin, player, intendedViewer, "<dark_purple>Custom Crafting</dark_purple>", 27);
         this.key = key;
     }
 
