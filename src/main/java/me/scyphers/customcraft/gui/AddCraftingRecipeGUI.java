@@ -9,11 +9,9 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -46,12 +44,14 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
      */
 
     public AddCraftingRecipeGUI(@NotNull CustomCraft plugin, @NotNull Player player, UUID viewer, NamespacedKey key) {
-        super(plugin, player, viewer, "<purple>Add Crafting Recipe</purple>", 54);
+        super(plugin, player, viewer, "<dark_purple>Add Crafting Recipe</dark_purple>", 54);
         this.key = key;
     }
 
     @Override
     public void draw() {
+
+        System.out.println("ingredients: " + Arrays.toString(ingredients));
 
         // Default appearance
         fill(BACKGROUND);
@@ -84,28 +84,53 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
 
     @Override
     public @NotNull GUI<?> handleInteraction(InventoryClickEvent event) {
+
         int slot = event.getRawSlot();
-        boolean isPlayerEdit = isPlayerEditableSlot(slot);
-        event.setCancelled(true);
-
-        // Allow the player to edit any slot as they please - bulk operations are blocked however
-        if (isPlayerEdit) {
-            if (isPermittedPlayerEdit(event.getClick())) {
-                event.setCancelled(false);
-                return this;
-            }
-
-            if (slot == 25) {
-                result = event.getCurrentItem();
-            } else {
-                int column = slot % 9;
-                int row = slot / 9;
-                ingredients[getIngredientIndex(column, row)] = event.getCurrentItem();
-            }
-
-            return this;
-
+        if (!isValidAction(event.getAction())) {
+            event.setCancelled(true);
         }
+
+        // Player inventory click
+        if (slot >= this.getSize()) {
+            return this;
+        }
+
+        System.out.println("cursor: " + event.getCursor());
+        System.out.println("current: " + event.getCurrentItem());
+        System.out.println("action: " + event.getAction());
+        System.out.println("click type: " + event.getClick());
+
+        ItemStack cursor = getItem(event.getCursor()).clone();
+
+        // Result slot click
+        if (slot == 25) {
+            if (cursor.getType() != Material.AIR) {
+                result = cursor;
+                System.out.println("updating result item");
+            } else {
+                result = AIR;
+                System.out.println("removing result item");
+            }
+            return this;
+        }
+
+        int column = slot % 9 - 1;
+        int row = slot / 9 - 1;
+
+        // Crafting inventory click
+        if (column >= 0 && column <= 2 && row >= 0 && row <= 2) {
+            int index = column + row * 3;
+            if (cursor.getType() != Material.AIR) {
+                ingredients[index] = cursor;
+                System.out.println("Updating ingredient item");
+            } else {
+                ingredients[index] = AIR;
+                System.out.println("Removing ingredient item");
+            }
+            return this;
+        }
+
+        event.setCancelled(true);
 
         return switch (slot) {
 
@@ -115,6 +140,12 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
                 if (!confirm) {
                     confirm = true;
                     this.draw();
+                    yield this;
+                }
+
+                if (!validRecipe()) {
+                    getPlugin().getMessenger().chat(getPlayer(), "crafting.invalidCraftingRecipe");
+                    confirm = false;
                     yield this;
                 }
 
@@ -159,11 +190,13 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
         return 10 + column + row * 9;
     }
 
+    @NotNull
     private ItemStack getItem(ItemStack item) {
         return item != null && item.getType() != Material.AIR ? item : AIR;
     }
 
     private boolean isPlayerEditableSlot(int slot) {
+        if (slot > this.getSize()) return true;
         return switch (slot) {
             case 10, 11, 12, 19, 20, 21, 28, 29, 30, 25 -> true;
             default -> false;
@@ -171,7 +204,15 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
     }
 
     private boolean isPermittedPlayerEdit(ClickType type) {
-        return !type.isLeftClick() || type.isRightClick();
+        return type == ClickType.RIGHT || type == ClickType.LEFT;
+    }
+
+    private boolean isValidAction(InventoryAction action) {
+        return switch (action) {
+            case PICKUP_ALL, PICKUP_HALF, PICKUP_SOME, PICKUP_ONE,
+                    PLACE_ALL, PLACE_SOME, PLACE_ONE, SWAP_WITH_CURSOR -> true;
+            default -> false;
+        };
     }
 
     private Recipe createShapedRecipe(ItemStack[] ingredients, ItemStack result) {
@@ -195,6 +236,11 @@ public class AddCraftingRecipeGUI extends InventoryGUI {
             }
         }
         return recipe;
+    }
+
+    private boolean validRecipe() {
+        if (getItem(result).getType() == Material.AIR) return false;
+        return !Arrays.stream(ingredients).allMatch(item -> getItem(item).getType() == Material.AIR);
     }
 
     private static record ParsedShape(String[] shape, Map<Character, ItemStack> ingredients) {
